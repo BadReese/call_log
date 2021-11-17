@@ -39,6 +39,7 @@ public class CallLogPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
     private static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     private static final String METHOD_GET = "get";
     private static final String METHOD_QUERY = "query";
+    private static final String METHOD_DELETE = "delete";
     private static final String OPERATOR_LIKE = "LIKE";
     private static final String OPERATOR_GT = ">";
     private static final String OPERATOR_LT = "<";
@@ -54,7 +55,8 @@ public class CallLogPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
             CallLog.Calls.CACHED_NUMBER_TYPE,
             CallLog.Calls.CACHED_NUMBER_LABEL,
             CallLog.Calls.CACHED_MATCHED_NUMBER,
-            CallLog.Calls.PHONE_ACCOUNT_ID
+            CallLog.Calls.PHONE_ACCOUNT_ID,
+            CallLog.Calls._ID
     };
 
     private MethodCall request;
@@ -169,6 +171,10 @@ public class CallLogPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
             case METHOD_GET:
                 queryLogs(null);
                 break;
+            case METHOD_DELETE:
+                String id = request.argument("id");
+                deleteLog(id);
+                break;
             case METHOD_QUERY:
                 String dateFrom = request.argument("dateFrom");
                 String dateTo = request.argument("dateTo");
@@ -196,6 +202,22 @@ public class CallLogPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                 result.notImplemented();
                 cleanup();
         }
+    }
+
+    /**
+     * delete call_log by id
+     *
+     * @param id id of call log
+     */
+    private void deleteLog(String id) {
+        try {
+            ctx.getContentResolver().delete(CallLog.Calls.CONTENT_URI,CallLog.Calls._ID + " = ? ",
+                    new String[] { String.valueOf(id) });
+            result.success(true);
+        } catch (Exception e) {
+            result.success(false);
+        }
+        cleanup();
     }
 
     /**
@@ -230,6 +252,7 @@ public class CallLogPlugin implements FlutterPlugin, ActivityAware, MethodCallHa
                 map.put("cachedMatchedNumber", cursor.getString(8));
                 map.put("simDisplayName", getSimDisplayName(subscriptions, cursor.getString(9)));
                 map.put("phoneAccountId", cursor.getString(9));
+                map.put("id", cursor.getString(10));
                 entries.add(map);
             }
             result.success(entries);

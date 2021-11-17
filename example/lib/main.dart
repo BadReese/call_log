@@ -12,12 +12,14 @@ void callbackDispatcher() {
       print('Queried call log entries');
       for (CallLogEntry entry in cLog) {
         print('-------------------------------------');
+        print('F. id  : ${entry.id}');
         print('F. NUMBER  : ${entry.formattedNumber}');
         print('C.M. NUMBER: ${entry.cachedMatchedNumber}');
         print('NUMBER     : ${entry.number}');
         print('NAME       : ${entry.name}');
         print('TYPE       : ${entry.callType}');
-        print('DATE       : ${DateTime.fromMillisecondsSinceEpoch(entry.timestamp)}');
+        print(
+            'DATE       : ${DateTime.fromMillisecondsSinceEpoch(entry.timestamp)}');
         print('DURATION   : ${entry.duration}');
         print('ACCOUNT ID : ${entry.phoneAccountId}');
         print('ACCOUNT ID : ${entry.phoneAccountId}');
@@ -56,16 +58,27 @@ class _MyAppState extends State<MyApp> {
         Column(
           children: <Widget>[
             const Divider(),
+            Text('F. id  : ${entry.id}', style: mono),
             Text('F. NUMBER  : ${entry.formattedNumber}', style: mono),
             Text('C.M. NUMBER: ${entry.cachedMatchedNumber}', style: mono),
             Text('NUMBER     : ${entry.number}', style: mono),
             Text('NAME       : ${entry.name}', style: mono),
             Text('TYPE       : ${entry.callType}', style: mono),
-            Text('DATE       : ${DateTime.fromMillisecondsSinceEpoch(entry.timestamp)}',
+            Text(
+                'DATE       : ${DateTime.fromMillisecondsSinceEpoch(entry.timestamp)}',
                 style: mono),
             Text('DURATION   : ${entry.duration}', style: mono),
             Text('ACCOUNT ID : ${entry.phoneAccountId}', style: mono),
             Text('SIM NAME   : ${entry.simDisplayName}', style: mono),
+            GestureDetector(
+              child: const Text(
+                "删除我",
+                style: TextStyle(fontSize: 15, color: Colors.red),
+              ),
+              onTap: () {
+                CallLog.delete(entry.id);
+              },
+            )
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -84,7 +97,8 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      final Iterable<CallLogEntry> result = await CallLog.query();
+                      final Iterable<CallLogEntry> result =
+                          await CallLog.query();
                       setState(() {
                         _callLogEntries = result;
                       });
